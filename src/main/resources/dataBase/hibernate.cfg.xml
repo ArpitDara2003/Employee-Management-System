@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<hibernate-configuration>
+      
+  <session-factory>
+            
+    <!-- Database connection settings -->
+            
+    <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+            
+    <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/postgres</property>
+            
+    <property name="hibernate.connection.username">postgres</property>
+            
+    <property name="hibernate.connection.password">Dnu2256@%</property>
+            
+    <!-- JDBC connection pool settings -->
+            
+    <property name="hibernate.c3p0.min_size">5</property>
+            
+    <property name="hibernate.c3p0.max_size">20</property>
+            
+    <!-- SQL dialect -->
+            
+    <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+            
+    <!-- Enable Hibernate logging and format SQL -->
+            
+    <property name="hibernate.show_sql">true</property>
+            
+    <property name="hibernate.format_sql">true</property>
+            
+    <!-- Automatically create/update tables -->
+            
+    <property name="hibernate.hbm2ddl.auto">update</property>
+            
+    <!-- List entity classes to manage -->
+            
+    <mapping class="com.example.project_1.dataModels.Basedata.User"/>
+            
+    <mapping class="com.example.project_1.dataModels.Basedata.Company"/>
+
+  </session-factory>
+  
+</hibernate-configuration>

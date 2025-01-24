@@ -1,0 +1,36 @@
+/* Container for the header and navbar */
+.top {
+    text-align: center;
+    padding: 20px;
+    background-color: #003367; /* Light grey background */
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Styling the h1 */
+.top h1 {
+    font-size: 2.5em;
+    color: #0080ff; /* Dark color for title */
+    margin-bottom: 15px;
+}
+
+/* Styling the navbar list */
+.top .navbar {
+    list-style: none; /* Remove bullet points */
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Individual navbar items */
+.top .navbar li {
+    font-size: 1.2em;
+    color: #007bff; /* Bootstrap's primary blue */
+    cursor: pointer;
+}
+
+/* Hover effect for navbar items */
+.top .navbar li:hover {
+    color: #0056b3; /* Darker shade of blue */
+    text-decoration: underline;
+}
