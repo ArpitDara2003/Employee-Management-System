@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modalStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary" >
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'home' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Quick Stats Cards -->
+                <section class="stats-cards">
+                    <div th:each="statCard : ${statCards}" class="card stat-card">
+                        <div class="card-icon" th:classappend="' ' + ${statCard.getColor()}">
+                            <i th:class="${statCard.getIconClass()}"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 th:text="${statCard.getTitle()}">Card Title</h3>
+                            <p class="stat-number" th:text="${statCard.getValue()}">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Content Grid -->
+                <div class="dashboard-grid">
+                    <!-- Left Column - News Feed -->
+                    <section class="card news-feed">
+                        <div class="card-header">
+                            <h2>Company Updates</h2>
+                           <button id="openModalBtn" onclick="openModal(this)">Add Event</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="news-items">
+                                <div th:each="newsItem : ${news}" class="news-item">
+                                    <div class="news-date" th:text="${newsItem.getPostedTime()}">2025-04-10</div>
+                                    <div class="news-content">
+                                        <div class="news-header">
+                                            <h3 th:text="${newsItem.heading}">News Title</h3>
+                                            <div th:if="${newsItem.imageUrl != null && !newsItem.imageUrl.isEmpty()}" class="news-image">
+                                                <img th:src="${newsItem.imageUrl}" src="https://picsum.photos/100" alt="News Image">
+                                            </div>
+                                        </div>
+                                        <p th:text="${newsItem.description}">News content goes here...</p>
+                                    </div>
+                                </div>
+                                <!-- Fallback if no news items -->
+                                <div class="news-item" th:if="${news == null || news.empty}">
+                                    <div class="news-date">2025-04-12</div>
+                                    <div class="news-content">
+                                        <div class="news-header">
+                                            <h3>Welcome to our new system</h3>
+                                            <div class="news-image">
+                                                <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=300&auto=format&fit=crop" alt="System Launch">
+                                            </div>
+                                        </div>
+                                        <p>We've launched our new employee management system to help improve productivity and coordination across the company. Explore the new features designed to streamline your work experience.</p>
+                                        <a href="#" class="read-more">Read more</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Right Column -->
+                    <div class="dashboard-right-column">
+                        <!-- Performance Metrics -->
+                        <section class="card performance-metrics">
+                            <div class="card-header">
+                                <h2>Your Performance</h2>
+                                <button class="card-header-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                                <div class="metrics-list">
+                                    <div th:each="metric : ${performanceMetrics}" class="metric-item">
+                                        <div class="metric-info">
+                                            <span th:text="${metric.title}">Metric Name</span>
+                                            <span th:text="${metric.value} + '/' + ${metric.maxValue}">85/100</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress" th:style="'width: ' + ${metric.getPercentage()} + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Team Performance Comparison -->
+                        <section class="card team-performance">
+                            <div class="card-header">
+                                <h2>Team Performance</h2>
+                                <button class="card-header-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="teamPerformanceChart"></canvas>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events Row -->
+                <section class="card upcoming-events">
+                    <div class="card-header">
+                        <h2>Upcoming Events</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="events-container">
+                            <div th:each="event : ${calendarEvents}" class="event-item" th:classappend="${event.type}">
+                                <div class="event-icon">
+                                    <i th:class="${event.type == 'meeting' ? 'fas fa-users' : (event.type == 'birthday' ? 'fas fa-birthday-cake' : (event.type == 'deadline' ? 'fas fa-clock' : 'fas fa-trophy'))}"></i>
+                                </div>
+                                <div class="event-info">
+                                    <h3 th:text="${event.title}">Event Title</h3>
+                                    <div class="event-details">
+                                        <span th:text="${event.date}">2025-04-15</span>
+                                        <span th:if="${event.startTime}" th:text="'• ' + ${event.startTime} + ' - ' + ${event.endTime}">• 09:00 - 11:00</span>
+                                        <span th:if="${event.location}" th:text="'• ' + ${event.location}">• Conference Room A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>
+    
+<!-- Modal Popup Form -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add News</h2>
+        <form id="popupForm" action="/addnews" method="post" enctype="multipart/form-data">
+            <div>
+            <label for="newsTitle">Title:</label>
+            <input type="text" id="newsTitle" name="newsTitle" placeholder="Enter news title" required>
+            </div>
+            <div>
+            <label for="newsDescription">Description:</label>
+            <textarea id="newsDescription" name="newsDescription" placeholder="Enter news description" rows="4" required></textarea>
+            </div>
+            <div>
+            <label for="newsImage">Upload Image:</label>
+            <input type="file" id="newsImage" name="newsImage" accept="image/*">
+            </div>
+            <div>
+            <label for="newsDate">Date (optional):</label>
+            <input type="date" id="newsDate" name="newsDate">
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+    
+    <script th:inline="javascript">
+        window.monthlyPerformanceData = {
+            labels: /*[[${monthlyPerformance.keySet()}]]*/ [],
+            data: /*[[${monthlyPerformance.values()}]]*/ []
+        };
+        window.teamPerformanceData = {
+            
+            labels: /*[[${teamPerformance.keySet()}]]*/ [],
+            data: /*[[${teamPerformance.values()}]]*/ []
+        };
+    </script>
+    <script src="/js/script.js"></script>
+    <script src="/js/modalScript.js"></script>
+
+</body>
+</html>

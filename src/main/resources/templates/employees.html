@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/employeesStyle.css">
+    <link rel="stylesheet" href="/css/modalStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary">
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'employees' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Employees</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Quick Stats Cards -->
+                <section class="stats-cards">
+                    <div th:each="statCard : ${statCards}" class="card stat-card">
+                        <div class="card-icon" th:classappend="' ' + ${statCard.getColor()}">
+                            <i th:class="${statCard.getIconClass()}"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 th:text="${statCard.getTitle()}">Card Title</h3>
+                            <p class="stat-number" th:text="${statCard.getValue()}">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Employees Juniors -->
+                <section class="card team-members" th:if="${#lists.size(juniors) > 0}">
+                    <div class="card-header">
+                        <h2>Reporting to you</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="team-container">                            
+                            <div th:each="member : ${juniors}" class="team-member" th:classappend="${member.status}" th:attr="data-employee-id=${member.employeeId}" onclick="showProfile(this)">
+                                <button class="openModalBtn edit-btn"
+                                        th:attr="data-employee-id=${member.employeeId}"
+                                        onclick="openModal(this); handleAlotWorkClick(event, this)">
+                                    Alot Work
+                                </button>                                
+                                <img th:src="${member.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                                <h3 th:text="${member.name}"></h3>
+                                <p th:text="${member.position}"></p>
+                                <p th:text="${member.email}"></p>
+                                <p th:text="${member.phoneNumber}"></p>
+                                <p th:text="'Employee ID: ' + ${member.employeeId}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                
+
+                <!-- Employees Team mates -->
+                <section class="card team-members">
+                    <div class="card-header">
+                        <h2>Team Members</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="team-container">
+                                
+                            <div class="manager-info">                                
+                                <div class="team-member" th:attr="data-employee-id=${manager.employeeId}" onclick="showProfile(this)">
+                                    <img th:src="${manager.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                                    <h3 th:text="${manager.name}">Jane Smith</h3>
+                                    <p th:text="${manager.position}">Team Manager</p>
+                                    <p th:text="${manager.email}">manager@example.com</p>
+                                    <p th:text="${manager.phoneNumber}">+9876543210</p>
+                                    <p th:text="'Employee ID: ' + ${manager.employeeId}">Employee ID: 12345</p>
+                                </div>
+                            </div>
+                            <div th:each="member : ${teamMembers}" class="team-member" th:classappend="${member.status}" th:attr="data-employee-id=${member.employeeId}" onclick="showProfile(this)">
+                                <img th:src="${member.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                                <h3 th:text="${member.name}">John Doe</h3>
+                                <p th:text="${member.position}">Developer</p>
+                                <p th:text="${member.email}">email@example.com</p>
+                                <p th:text="${member.phoneNumber}">+1234567890</p>
+                                <p th:text="'Employee ID: ' + ${member.employeeId}">Employee ID: 12345</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+               
+            </main>
+            
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>        
+    </div>
+
+<!-- Modal Popup Form -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Alot Work</h2>
+        <form id="popupForm" action="/submitWorkAloted" method="post">
+            <input type="hidden" id="employeeIdInput" name="employeeId">
+            <div id="formContainer">
+                <label for="projectDropdown">Select related task:</label>
+                <select id="projectDropdown" name="selectedProject" onchange="updateDueDate(this, window.tasks)">
+                    <option value="" disabled selected>Select a project</option>
+                    <option th:each="entry : ${tasks}" th:value="${entry.getTitle()}" th:text="${entry.getTitle()}"></option>
+                </select>
+                <div>
+                    <label>Due Date:</label>
+                    <span id="dueDate">No due date available</span>
+                </div>
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter title..." required>
+                <label for="workDescription">Work Description:</label>
+                <textarea id="workDescription" name="workDescription" rows="4" cols="50" placeholder="Describe the work you did..."></textarea>            
+                <label for="dueDate">Due Date:</label>
+                <input type="date" id="dueDateInput" name="dueDate" required>
+                <label for="estimatedTimeRequired">Estimated Time Required:</label>
+                <input type="number" id="estimatedTimeRequired" name="estimatedTimeRequired" placeholder="Enter estimated time in days..." required>
+                <label for="comlexity">Complexity:</label>
+                <select id="comlexity" name="comlexity" required>
+                    <option value="" disabled selected>Select complexity</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Very High">Very High</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.tasks = /*[[${tasks}]]*/ [];
+        /*]]>*/
+    </script>
+    <script src="/js/script.js"></script>
+    <script src="/js/employeesScript.js"></script>
+    <script src="/js/modalScript.js"></script>
+</body>
+</html>

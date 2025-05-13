@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/editProfileStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary">
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'home' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Edit Profile</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <section class="profile-section">
+                    <!-- Form to Update Status -->
+                    <form id="status-form" action="/updatestatus" method="post" class="profile-form">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="active">Active</option>
+                                <option value="work-from-home">Work from home</option>
+                                <option value="on-leave">On Leave</option>
+                            </select>
+                        </div>
+                        <button type="submit">Update Profile</button>
+                    </form>
+                </section>
+                <section class="profile-section">
+                    <!-- Form to Update Profile Details -->
+                    <form id="profile-form" action="/updateprofile" method="post" enctype="multipart/form-data" class="profile-form">
+                        <div class="form-group">
+                            <label for="profileImage">Profile Image</label>
+                            <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                            <input type="file" id="profileImage" name="profileImage">
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeId">Employee ID</label>
+                            <input type="text" id="employeeId" name="employeeId" th:value="${user.employeeId}" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" th:value="${user.name}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="position">Position</label>
+                            <input type="text" id="position" name="position" th:value="${user.position}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" th:value="${user.email}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number</label>
+                            <input type="text" id="phoneNumber" name="phoneNumber" th:value="${user.phoneNumber}" required>
+                        </div>
+                        <button type="submit">Update Profile</button>
+                    </form>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>
+
+       
+    </div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/profileScript.js"></script>
+    <style>
+        .metric-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .metric-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</body>
+</html>

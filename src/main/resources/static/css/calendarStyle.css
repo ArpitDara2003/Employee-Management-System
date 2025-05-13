@@ -1,0 +1,106 @@
+.calendar-section {
+    padding: 1rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1rem;
+}
+
+.calendar-day {
+    background: #fff;
+    border-radius: 10px;
+    padding: 0.8rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.date-label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.event-item {
+    font-size: 0.9rem;
+    margin: 0.2rem 0;
+}
+
+.see-more-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.85rem;
+}
+
+.month-calendar {
+    margin-bottom: 30px;
+}
+
+.date-cube-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.date-cube {
+    flex: none; /* Prevent flex-grow */
+    width: calc(100% / 7 - 10px); /* Fixed width for 7 columns */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    min-height: 100px; /* Minimum height for the cube */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Align content within the box */
+}
+
+.cube-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.weekday {
+    font-size: 0.85em;
+    color: #555;
+}
+
+.day-number {
+    font-size: 1em;
+}
+
+.event-list {
+    list-style: none;
+    padding-left: 0;
+    font-size: 0.85em;
+    margin: 0;
+}
+
+.event-list li {
+    margin-bottom: 3px;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.arrow-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+}

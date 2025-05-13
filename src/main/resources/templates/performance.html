@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modalStyle.css">
+    <link rel="stylesheet" href="/css/performanceStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary">
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'performance' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Quick Stats Cards -->
+                <section class="stats-cards">
+                    <div th:each="statCard : ${statCards}" class="card stat-card">
+                        <div class="card-icon" th:classappend="' ' + ${statCard.getColor()}">
+                            <i th:class="${statCard.getIconClass()}"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 th:text="${statCard.getTitle()}">Card Title</h3>
+                            <p class="stat-number" th:text="${statCard.getValue()}">0</p>
+                        </div>
+                    </div>
+                </section>
+                  
+                <!-- Performance Metrics -->
+                <section class="card performance-metrics">
+                    <div class="card-header">
+                        <h2>Your Performance</h2>
+                        <button id="openModalBtn" onclick="openModal(this)">Log Work</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                        <div class="metrics-list">
+                            <div th:each="metric : ${performanceMetrics}" class="metric-item">
+                                <div class="metric-info">
+                                    <span th:text="${metric.title}">Metric Name</span>
+                                    <span th:text="${metric.value} + '/' + ${metric.maxValue}">85/100</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress" th:style="'width: ' + ${metric.getPercentage()} + '%'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Team Performance Comparison -->
+                <section class="card team-performance">
+                    <div class="card-header">
+                        <h2>Team Performance</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="teamPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="card upcoming-events">
+                    <div class="card-header">
+                        <h2>Achievements</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="events-container">
+                            <div th:each="achievement : ${achievements}" class="event-item" th:classappend="${achievement.type}">
+                                <div class="event-icon">
+                                    <i th:class="${
+                                        achievement.type == 'bronze' ? 'fas fa-trophy bronze-trophy' :
+                                        (achievement.type == 'silver' ? 'fas fa-trophy silver-trophy' :
+                                        (achievement.type == 'gold' ? 'fas fa-trophy gold-trophy' :
+                                        (achievement.type == 'diamond' ? 'fas fa-gem diamond-trophy' : 'fas fa-trophy bronze-trophy')))
+                                    }"></i>
+                                </div>
+                                <div class="event-info">
+                                    <h3 th:text="${achievement.title}">New Joinee</h3>
+                                    <div class="event-details">
+                                        <span th:text="${achievement.date}">2025-04-15</span>
+                                        <span th:if="${achievement.location}" th:text="'• ' + ${achievement.location}">• Office</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+    
+
+    
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>        
+    </div>
+
+<!-- Modal Popup Form -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Log Your Work</h2>
+        <form id="popupForm" action="/submitWorkLog" method="post">
+            <div id="formContainer">
+            <label for="projectDropdown">Select Project:</label>
+            <select id="projectDropdown" name="selectedProject" onchange="updateDueDate(this, window.tasks)">
+                <option value="" disabled selected>Select a project</option>
+                <option th:each="entry : ${tasks}" th:value="${entry.getTitle()}" th:text="${entry.getTitle()}"></option>
+            </select>
+            <div>
+                <label>Due Date:</label>
+                <span id="dueDate">No due date available</span>
+            </div>
+            <div>
+                <label>Work Completion:</label>
+                <span id="workCompletionPercentage">0%</span>
+                <meter id="workCompletionMeter" value="0" min="0" max="100"></meter>
+            </div>
+            <div>
+                <label for="percentageWorkDone">Percentage work done:</label>
+                <input type="number" id="percentageWorkDone" name="percentageWorkDone" min="0" max="100" oninput="updatePercentageCompleted(window.tasks)" required>%
+            </div>
+            <div>
+                <label for="workDate">Date:</label>
+                <input type="date" id="workDate" name="workDate" required>
+            </div>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+    <script th:inline="javascript">
+        window.monthlyPerformanceData = {
+            labels: /*[[${monthlyPerformance.keySet()}]]*/ [],
+            data: /*[[${monthlyPerformance.values()}]]*/ []
+        };
+        window.teamPerformanceData = {
+            
+            labels: /*[[${teamPerformance.keySet()}]]*/ [],
+            data: /*[[${teamPerformance.values()}]]*/ []
+        };
+        window.tasks = /*[[${tasks}]]*/ [];
+    </script>
+    <script src="/js/modalScript.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/performanceScript.js"></script>
+</body>
+</html>

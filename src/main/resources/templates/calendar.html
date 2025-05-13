@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/calendarStyle.css">
+    <link rel="stylesheet" href="/css/modalStyle.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary">
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'calendar' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Quick Stats Cards -->
+                <section class="stats-cards">
+                    <div th:each="statCard : ${statCards}" class="card stat-card">
+                        <div class="card-icon" th:classappend="' ' + ${statCard.getColor()}">
+                            <i th:class="${statCard.getIconClass()}"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 th:text="${statCard.getTitle()}">Card Title</h3>
+                            <p class="stat-number" th:text="${statCard.getValue()}">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Upcoming Events Row -->
+                <section class="month-calendar">
+                    <div class="calendar-header">
+                        <button class="arrow-btn" id="prevMonthBtn">&#8592;</button> 
+                        <h2 id="currentMonthYear" th:text="${presentMonthYear}"> </h2>
+                        <button class="arrow-btn" id="nextMonthBtn">&#8594;</button>
+                        <button id="openModalBtn" onclick="openModal(this)">Add Event</button>
+                    </div>
+                
+                    <div class="date-cube-row">
+                        <div th:each="cube : ${presentMonthDays}" class="date-cube">
+                            <div class="cube-header">
+                                <span class="weekday" th:text="${cube.weekDay}"></span>
+                                <span class="day-number" th:text="${cube.day}"></span>
+                            </div>
+                            <ul class="event-list">
+                                <li th:if="${cube.events != null}" th:each="event : ${cube.events}" th:text="${event}">Event</li>
+                                <li th:if="${cube.events == null}">No Events</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>
+
+<!-- Modal Popup Form -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add event</h2>
+        <form id="popupForm" action="/addevent" method="post">
+            <label for="projectDropdown">Select Event type:</label>
+            <select id="projectDropdown" name="selectedProject" onchange="updateDueDate(this, window.tasks)">
+                <option value="" disabled selected>Select an event type</option>
+                <option value="Cellibrations">🎉 Cellibrations</option>
+                <option value="Party">🎈 Party</option>
+                <option value="Webinar">💻 Webinar</option>
+                <option value="Holiday">🌴 Holiday</option>
+            </select>
+                <label for="Date">Date:</label>
+                <input type="date" id="workDate" name="workDate" required>
+            <div>
+                <label for="eventTitle">Title:</label>
+                <input type="text" id="eventTitle" name="eventTitle" placeholder="Enter event title" required>
+            </div>
+            <div>
+                <label for="eventDescription">Description:</label>
+                <textarea id="eventDescription" name="eventDescription" placeholder="Enter event description" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+    <script src="/js/script.js"></script>
+    <script src="/js/calendarScript.js"></script>
+    <script src="/js/modalScript.js"></script>
+
+</body>
+</html>

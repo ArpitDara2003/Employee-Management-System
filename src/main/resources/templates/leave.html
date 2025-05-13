@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/leaveStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary">
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'leave' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Leaves</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Quick Stats Cards -->
+                <section class="stats-cards">
+                    <div th:each="statCard : ${statCards}" class="card stat-card">
+                        <div class="card-icon" th:classappend="' ' + ${statCard.getColor()}">
+                            <i th:class="${statCard.getIconClass()}"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 th:text="${statCard.getTitle()}">Card Title</h3>
+                            <p class="stat-number" th:text="${statCard.getValue()}">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Content Grid -->
+                <div class="dashboard-grid">
+                    <!-- Left Column -->
+                    <!-- Apply for Leave -->
+                    <section class="leave-application">
+                        <h2>Apply for Leave</h2>
+
+                        <form id="leaveForm" method="post" th:action="@{/applyforleave}">
+                            <label for="leaveTypeSelect">Leave Type:</label>
+                            <select id="leaveTypeSelect" name="leaveType" onchange="showAvailableLeaves()"></select>
+
+                            <label for="fromLeaveDate">From Date:</label>
+                            <input type="date" id="fromLeaveDate" name="fromLeaveDate" required>
+
+                            <label for="tillLeaveDate">Till Date:</label>
+                            <input type="date" id="tillLeaveDate" name="tillLeaveDate" required>
+
+                            <div id="availableLeaves" class="info-box"></div>
+
+                            <button type="submit">Apply</button>
+                        </form>
+
+                    </section>
+
+                    <!-- Applied and Approved Leaves -->
+                    <section class="summary">
+                        <h2>Leaves Summary</h2>
+                    
+                        <!-- Leaves Approved -->
+                        <div class="summary-section">
+                            <h3>Leaves Approved</h3>
+                            <div th:if="${#maps.isEmpty(leavesApproved)}">
+                                <p>No leaves approved yet.</p>
+                            </div>
+                            <div th:each="entry : ${leavesApproved}">
+                                <div th:each="date : ${entry.value}" class="leave-entry">
+                                    <strong th:text="${entry.key}">Leave Type</strong> -
+                                    <span th:text="${#dates.format(date, 'dd MMM yyyy')}">Leave Date</span>
+                    
+                                    <form method="post" th:action="@{/leave/revoke}" class="inline-form">
+                                        <input type="hidden" name="leaveType" th:value="${entry.key}" />
+                                        <input type="hidden" name="leaveDate" th:value="${#dates.format(date, 'yyyy-MM-dd')}" />
+                                        <button type="submit" class="revoke-btn">Revoke</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- Leaves Pending Approval -->
+                        <div class="summary-section">
+                            <h3>Leaves Pending Approval</h3>
+                            <div th:if="${#maps.isEmpty(leavesPending)}">
+                                <p>No leaves pending approval.</p>
+                            </div>
+                            <div th:each="entry : ${leavesPending}">
+                                <div th:each="date : ${entry.value}" class="leave-entry">
+                                    <strong th:text="${entry.key}">Leave Type</strong> -
+                                    <span th:text="${#dates.format(date, 'dd MMM yyyy')}">Leave Date</span>
+                    
+                                    <form method="post" th:action="@{/leave/revoke}" class="inline-form">
+                                        <input type="hidden" name="leaveType" th:value="${entry.key}" />
+                                        <input type="hidden" name="leaveDate" th:value="${#dates.format(date, 'yyyy-MM-dd')}" />
+                                        <button type="submit" class="revoke-btn">Revoke</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                </div>
+               
+            </main>
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>
+        
+    </div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const leaveType = /*[[${leaveType}]]*/ {};
+        const leavesApproved = /*[[${leavesApproved}]]*/ {};
+        const leavesPending = /*[[${leavesPending}]]*/ {};
+        /*]]>*/
+    </script>
+    <script src="/js/script.js"></script>
+    <script src="/js/leaveScript.js"></script>
+</body>
+</html>

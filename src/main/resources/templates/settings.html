@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary">
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'settings' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${employee.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Quick Stats Cards -->
+                <section class="stats-cards">
+                    <div class="card stat-card">
+                        <div class="card-icon blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Total Employees</h3>
+                            <p class="stat-number">128</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="card-icon green">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Tasks Completed</h3>
+                            <p class="stat-number">24/30</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="card-icon orange">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Leave Balance</h3>
+                            <p class="stat-number" th:text="${leaveBalance.annualLeaveRemaining} + ' days'">7 days</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="card-icon purple">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Performance</h3>
+                            <p class="stat-number">88%</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Content Grid -->
+                <div class="dashboard-grid">
+                    <!-- Left Column - News Feed -->
+                    <section class="card news-feed">
+                        <div class="card-header">
+                            <h2>Company Updates</h2>
+                            <button class="card-header-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="news-items">
+                                <div th:each="newsItem : ${news}" class="news-item">
+                                    <div class="news-date" th:text="${newsItem.getPostedTime()}">2025-04-10</div>
+                                    <div class="news-content">
+                                        <div class="news-header">
+                                            <h3 th:text="${newsItem.heading}">News Title</h3>
+                                            <div th:if="${newsItem.imageUrl != null && !newsItem.imageUrl.isEmpty()}" class="news-image">
+                                                <img th:src="${newsItem.imageUrl}" src="https://via.placeholder.com/150" alt="News Image">
+                                            </div>
+                                        </div>
+                                        <p th:text="${newsItem.description}">News content goes here...</p>
+                                        <a href="#" class="read-more">Read more</a>
+                                    </div>
+                                </div>
+                                <!-- Fallback if no news items -->
+                                <div class="news-item" th:if="${news == null || news.empty}">
+                                    <div class="news-date">2025-04-12</div>
+                                    <div class="news-content">
+                                        <div class="news-header">
+                                            <h3>Welcome to our new system</h3>
+                                            <div class="news-image">
+                                                <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=300&auto=format&fit=crop" alt="System Launch">
+                                            </div>
+                                        </div>
+                                        <p>We've launched our new employee management system to help improve productivity and coordination across the company. Explore the new features designed to streamline your work experience.</p>
+                                        <a href="#" class="read-more">Read more</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Right Column -->
+                    <div class="dashboard-right-column">
+                        <!-- Performance Metrics -->
+                        <section class="card performance-metrics">
+                            <div class="card-header">
+                                <h2>Your Performance</h2>
+                                <button class="card-header-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                                <div class="metrics-list">
+                                    <div th:each="metric : ${performanceMetrics}" class="metric-item">
+                                        <div class="metric-info">
+                                            <span th:text="${metric.name}">Metric Name</span>
+                                            <span th:text="${metric.value} + '/' + ${metric.maxValue}">85/100</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress" th:style="'width: ' + ${metric.getPercentage()} + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Team Performance Comparison -->
+                        <section class="card team-performance">
+                            <div class="card-header">
+                                <h2>Team Performance</h2>
+                                <button class="card-header-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="teamPerformanceChart"></canvas>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events Row -->
+                <section class="card upcoming-events">
+                    <div class="card-header">
+                        <h2>Upcoming Events</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="events-container">
+                            <div th:each="event : ${calendarEvents}" class="event-item" th:classappend="${event.type}">
+                                <div class="event-icon">
+                                    <i th:class="${event.type == 'meeting' ? 'fas fa-users' : (event.type == 'birthday' ? 'fas fa-birthday-cake' : (event.type == 'deadline' ? 'fas fa-clock' : 'fas fa-trophy'))}"></i>
+                                </div>
+                                <div class="event-info">
+                                    <h3 th:text="${event.title}">Event Title</h3>
+                                    <div class="event-details">
+                                        <span th:text="${event.date}">2025-04-15</span>
+                                        <span th:if="${event.startTime}" th:text="'• ' + ${event.startTime} + ' - ' + ${event.endTime}">• 09:00 - 11:00</span>
+                                        <span th:if="${event.location}" th:text="'• ' + ${event.location}">• Conference Room A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>
+
+        <!-- Right Sidebar (for mobile) -->
+        <div class="sidebar right-sidebar">
+            <div class="sidebar-header">
+                <h2>Quick Info</h2>
+                <button class="toggle-sidebar-btn right-toggle">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <!-- Performance Summary -->
+                <div class="sidebar-section">
+                    <h3>Performance</h3>
+                    <div class="sidebar-performance-summary">
+                        <div class="performance-chart-mini">
+                            <canvas id="miniPerformanceChart"></canvas>
+                        </div>
+                        <div class="performance-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Overall</span>
+                                <span class="stat-value">88%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Tasks</span>
+                                <span class="stat-value">24/30</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Leave Balance -->
+                <div class="sidebar-section">
+                    <h3>Leave Balance</h3>
+                    <div class="leave-summary">
+                        <div class="leave-item">
+                            <span class="leave-type">Annual</span>
+                            <div class="leave-progress">
+                                <div class="leave-bar" th:style="'width: ' + ${leaveBalance.annualLeaveUsed * 100 / leaveBalance.annualLeaveTotal} + '%'"></div>
+                            </div>
+                            <span class="leave-value" th:text="${leaveBalance.annualLeaveRemaining} + '/' + ${leaveBalance.annualLeaveTotal}">7/15</span>
+                        </div>
+                        <div class="leave-item">
+                            <span class="leave-type">Sick</span>
+                            <div class="leave-progress">
+                                <div class="leave-bar" th:style="'width: ' + ${leaveBalance.sickLeaveUsed * 100 / leaveBalance.sickLeaveTotal} + '%'"></div>
+                            </div>
+                            <span class="leave-value" th:text="${leaveBalance.sickLeaveRemaining} + '/' + ${leaveBalance.sickLeaveTotal}">7/10</span>
+                        </div>
+                        <div class="leave-item">
+                            <span class="leave-type">Casual</span>
+                            <div class="leave-progress">
+                                <div class="leave-bar" th:style="'width: ' + ${leaveBalance.casualLeaveUsed * 100 / leaveBalance.casualLeaveTotal} + '%'"></div>
+                            </div>
+                            <span class="leave-value" th:text="${leaveBalance.casualLeaveRemaining} + '/' + ${leaveBalance.casualLeaveTotal}">3/5</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Today's Events -->
+                <div class="sidebar-section">
+                    <h3>Today's Events</h3>
+                    <div class="today-events">
+                        <div class="event-item-mini meeting">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <strong>Team Meeting</strong>
+                                <span>09:00 - 11:00</span>
+                            </div>
+                        </div>
+                        <div class="event-item-mini deadline">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <strong>Project Update</strong>
+                                <span>14:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overlay for mobile when sidebar is open -->
+        <div class="sidebar-overlay"></div>
+    </div>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

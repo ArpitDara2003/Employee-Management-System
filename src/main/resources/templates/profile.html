@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SiteMachine</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/profileStyle.css">
+    <link rel="stylesheet" href="/css/modalStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2 th:text="${company.companyName}">SiteMachine</h2>
+                </div>
+                <button class="toggle-sidebar-btn left-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div class="profile-summary">
+                    <div class="profile-image">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                    </div>
+                    <div class="profile-info">
+                        <h3 th:text="${user.name}">John Doe</h3>
+                        <p th:text="${user.position}">Senior Developer</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li th:each="item : ${navItems}" th:class="${item.url == 'home' ? 'active' : ''}">
+                            <a th:href="@{'/' + ${item.url}}">
+                                <i th:class="${item.icon}"></i>
+                                <span th:text="${item.name}">Link</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/login" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar-btn mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="mobile-profile">
+                        <img th:src="${user.profileImage}" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="dashboard-grid">
+                    <section class="card profile-section">
+                        <div class="profile-card">
+                            <div class="profile-img-container">
+                                <img th:src="${teamMember.profileImage}" src="https://via.placeholder.com/100" alt="Profile" />
+                            </div>
+                            <div class="profile-details">
+                                <p><strong>Status:</strong> <span th:text="${teamMember.status}">Active</span></p>
+                                <p><strong>Employee ID:</strong> <span th:text="${teamMember.employeeId}">EMP123</span></p>
+                                <p><strong>Name:</strong> <span th:text="${teamMember.name}">John Doe</span></p>
+                                <p><strong>Position:</strong> <span th:text="${teamMember.position}">Senior Developer</span></p>
+                                <p><strong>Email:</strong> <span th:text="${teamMember.email}">john@example.com</span></p>
+                                <p><strong>Phone:</strong> <span th:text="${teamMember.phoneNumber}">1234567890</span></p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Performance Metrics -->
+                    <section class="card performance-metrics">
+                        <div class="card-header">
+                            <h2 th:text="${teamMember.name} + '\'s Performance:'">Performance:</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container full-width">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                            <div class="metrics-list">
+                                <div th:each="metric : ${performanceMetrics}" class="metric-item">
+                                    <div class="metric-info">
+                                        <span th:text="${metric.title}">Metric Name</span>
+                                        <span th:text="${metric.value} + '/' + ${metric.maxValue}">85/100</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress" th:style="'width: ' + ${metric.getPercentage()} + '%'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <!-- Employees Juniors -->
+                <section class="card team-members" th:if="${#lists.size(juniors) > 0}">
+                    <div class="card-header">
+                        <h2 th:text="'Reporting to ' + ${teamMember.name}">Reporting</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="team-container">                            
+                            <div th:each="member : ${juniors}" class="team-member" th:classappend="${member.status}"  th:attr="data-employee-id=${member.employeeId}" onclick="showProfile(this)">
+                                <img th:src="${member.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                                <h3 th:text="${member.name}">John Doe</h3>
+                                <p th:text="${member.position}">Developer</p>
+                                <p th:text="${member.email}">email@example.com</p>
+                                <p th:text="${member.phoneNumber}">+1234567890</p>
+                                <p th:text="'Employee ID: ' + ${member.employeeId}">Employee ID: 12345</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                
+
+                <!-- Employees Team mates -->
+                <section class="card team-members">
+                    <div class="card-header">
+                        <h2 th:text="${teamMember.name} + '\'s Team:'">Team Members:</h2>
+                        <button class="card-header-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="team-container">
+                                 
+                            <div class="manager-info">                                
+                                <div class="team-member" th:attr="data-employee-id=${manager.employeeId}" onclick="showProfile(this)">
+                                    <img th:src="${manager.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                                    <h3 th:text="${manager.name}">Jane Smith</h3>
+                                    <p th:text="${manager.position}">Team Manager</p>
+                                    <p th:text="${manager.email}">manager@example.com</p>
+                                    <p th:text="${manager.phoneNumber}">+9876543210</p>
+                                    <p th:text="'Employee ID: ' + ${manager.employeeId}">Employee ID: 12345</p>
+                                </div>
+                            </div>
+                            <div th:each="member : ${teamMembers}" class="team-member" th:classappend="${member.status}" th:attr="data-employee-id=${member.employeeId}" onclick="showProfile(this)">
+                                <img th:src="${member.profileImage}" src="https://via.placeholder.com/50" alt="Profile">
+                                <h3 th:text="${member.name}">John Doe</h3>
+                                <p th:text="${member.position}">Developer</p>
+                                <p th:text="${member.email}">email@example.com</p>
+                                <p th:text="${member.phoneNumber}">+1234567890</p>
+                                <p th:text="'Employee ID: ' + ${member.employeeId}">Employee ID: 12345</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>&copy; 2025 SiteMachine. All rights reserved.</p>
+            </footer>
+        </div>
+
+       
+    </div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/profileScript.js"></script>
+    <script src="/js/modalScript.js"></script>
+    <script th:inline="javascript">
+        window.monthlyPerformanceData = {
+            labels: /*[[${monthlyPerformance.keySet()}]]*/ [],
+            data: /*[[${monthlyPerformance.values()}]]*/ []
+        };
+    </script>
+    <style>
+        .metric-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .metric-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</body>
+</html>
